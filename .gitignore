@@ -427,3 +427,18 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# --- Custom NetPulse CLI rules ---
+# Output folder for single-file publishes
+dist/
+
+# Exported diagnostic reports (JSON/CSV)
+reports/
+*.json
+*.csv
+!appsettings.json
+!appsettings.*.json
+
+# JetBrains Rider (in case you or a contributor use it)
+.idea/
+*.sln.iml
