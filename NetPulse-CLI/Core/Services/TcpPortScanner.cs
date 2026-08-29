@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net.Sockets;
 using NetPulse_CLI.Core.Interfaces;
 using NetPulse_CLI.Core.Models;
@@ -26,6 +27,29 @@ namespace NetPulse_CLI.Core.Services
                 if (ct.IsCancellationRequested) throw;
                 return new ScanResult(host, port, PortStatus.Filtered, DateTime.Now);
             }
+        }
+
+        public async Task<IReadOnlyList<ScanResult>> ScanRangeAsync 
+            (string host, int fromPort, int toPort, int timeoutMs, int concurrency,
+            IProgress<ScanResult>? progress = null, CancellationToken ct = default)
+        {
+            var ports = Enumerable.Range(fromPort, toPort - fromPort + 1);
+            var results = new ConcurrentBag<ScanResult>();
+
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = concurrency,
+                CancellationToken = ct
+            };
+
+            await Parallel.ForEachAsync(ports, options, async (port, token) =>
+            {
+                var result = await ScanPortAsync(host, port, timeoutMs, token);
+                results.Add(result);
+                progress?.Report(result);
+            });
+
+            return results.OrderBy(r => r.Port).ToList();
         }
     }
 }
