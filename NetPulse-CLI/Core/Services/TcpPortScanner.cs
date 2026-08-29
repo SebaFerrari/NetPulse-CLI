@@ -1,9 +1,6 @@
-using System.Diagnostics;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using NetPulse_CLI.Core.Interfaces;
 using NetPulse_CLI.Core.Models;
-using NetPulse_CLI.Settings;
 
 namespace NetPulse_CLI.Core.Services
 {

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using NetPulse_CLI.Core.Interfaces;
 using NetPulse_CLI.Core.Models;
 using System.Net.NetworkInformation;

@@ -1,5 +1,4 @@
 using NetPulse_CLI.Core.Models;
-using NetPulse_CLI.Settings;
 
 namespace NetPulse_CLI.Core.Interfaces
 {
