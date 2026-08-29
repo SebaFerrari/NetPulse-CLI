@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Net.NetworkInformation;
 
 namespace NetPulse_CLI.Core.Models
 {
-    internal class PingMetrics
-    {
-    }
+    public record PingMetrics(string Host, bool Success, long? RoundTripTimeMs, IPStatus Status, DateTime TimeStamp);
 }

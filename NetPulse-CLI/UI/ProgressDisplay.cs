@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NetPulse_CLI.Commands.UI
+namespace NetPulse_CLI.UI
 {
     internal class ProgressDisplay
     {
