@@ -4,7 +4,6 @@ using System.Text;
 
 namespace NetPulse_CLI.Core.Models
 {
-    internal class ScanReport
-    {
-    }
+    public record ScanReport(string Host, int FromPort, int ToPort, DateTime StartedAt, TimeSpan Duration,
+        IReadOnlyList<ScanResult> Results);
 }

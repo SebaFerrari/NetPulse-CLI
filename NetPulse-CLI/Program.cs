@@ -25,7 +25,5 @@ app.Configure(config =>
         .WithExample("ping", "8.8.8.8")
         .WithExample("ping", "8.8.8.8", "-n", "10", "-i", "500");
 });
-if (args.Length == 0)
-    args = ["ping", "8.8.8.8", "-n", "0"];
 
 return await app.RunAsync(args);
