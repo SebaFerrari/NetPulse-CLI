@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NetPulse_CLI.Core.Interfaces
 {
-    internal interface IReportExporter
+    public interface IReportExporter
     {
         string Format { get; }                                    // "json", "csv"
         Task ExportAsync(ScanReport report, string path, CancellationToken ct = default);

@@ -30,6 +30,11 @@ namespace NetPulse_CLI.Settings
         [DefaultValue(100)]
         public int Concurrency { get; init; }
 
+        [Description("Path to save report (.json or .csv)")]
+        [CommandOption("-o|--output")]
+
+        public string? OutputPath { get; init; }
+
         public override ValidationResult Validate()
         {
             if (FromPort < 0 || ToPort > 65535) 
