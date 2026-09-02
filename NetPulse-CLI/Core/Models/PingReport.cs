@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace NetPulse_CLI.Core.Models
+﻿namespace NetPulse_CLI.Core.Models
 {
     public record PingReport (string Host, int TimeoutMs, int IntervalMs,
     DateTime StartedAt, TimeSpan Duration,

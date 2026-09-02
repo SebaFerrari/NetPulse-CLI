@@ -1,11 +1,7 @@
 ﻿using NetPulse_CLI.Core.Interfaces;
 using NetPulse_CLI.Core.Models;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace NetPulse_CLI.Core.Services
 {

@@ -5,9 +5,6 @@ using NetPulse_CLI.UI;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.Diagnostics;
-using System.Globalization;
-using System.Text;
-
 namespace NetPulse_CLI.Commands
 {
     public sealed class PingCommand : AsyncCommand<PingSettings>

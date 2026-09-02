@@ -4,6 +4,7 @@ using NetPulse_CLI.Core.Interfaces;
 using NetPulse_CLI.Core.Models;
 using NetPulse_CLI.Core.Services;
 using NetPulse_CLI.Infrastructure;
+using NetPulse_CLI.UI;
 using Spectre.Console.Cli;
 
 var services = new ServiceCollection();
@@ -30,5 +31,12 @@ app.Configure(config =>
         .WithExample("ping", "8.8.8.8")
         .WithExample("ping", "8.8.8.8", "-n", "10", "-i", "500");
 });
+
+if (args.Length == 0)
+{
+    var interactive = InteractiveMenu.BuildArgs();
+    if (interactive is null) return 0;
+    args = interactive;
+}
 
 return await app.RunAsync(args);

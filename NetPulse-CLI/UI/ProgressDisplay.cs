@@ -1,5 +1,4 @@
-﻿
-using NetPulse_CLI.Core.Models;
+﻿using NetPulse_CLI.Core.Models;
 using Spectre.Console;
 
 namespace NetPulse_CLI.UI
