@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using NetPulse_CLI.Core.Models;
 
 namespace NetPulse_CLI.Core.Interfaces
 {
-    internal interface IPingService
+    public interface IPingService
     {
+        Task<PingMetrics> GetPingMetricsAsync(string host, int timeoutMs, CancellationToken ct = default);
     }
 }

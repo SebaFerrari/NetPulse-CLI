@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace NetPulse_CLI.Core.Models
 {
-    public class ScanResult
-    {
+    public enum PortStatus { Open, Closed, Filtered }
 
-    }
+    public record ScanResult(string Host, int Port, PortStatus Status, DateTime Timestamp);
 }
