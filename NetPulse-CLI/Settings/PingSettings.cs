@@ -33,9 +33,9 @@ namespace NetPulse_CLI.Settings
 
         public override ValidationResult Validate()
         {
-            if (TimeoutMs <= 0)
+            if (TimeoutMs < 0)
             {
-                return ValidationResult.Error("Timeout must be higher than 0");
+                return ValidationResult.Error("Timeout must be greater than 0");
             }
             if (IntervalMs < 0)
             {

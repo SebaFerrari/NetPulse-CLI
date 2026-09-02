@@ -41,6 +41,8 @@ namespace NetPulse_CLI.UI
                     break;
 
                 case "Full scan [grey](1 - 65535)[/] - can take several minutes":
+                    if (!AnsiConsole.Confirm("This may take several minutes. Continue?", defaultValue: false))
+                        return null;
                     from = 1; to = 65535;
                     break;
 
@@ -70,7 +72,7 @@ namespace NetPulse_CLI.UI
             return args.ToArray();
         }
 
-        public static string[] BuildPingArgs()
+        private static string[] BuildPingArgs()
         {
             var host = AskHost(defaultHost: "8.8.8.8");
 
@@ -117,7 +119,7 @@ namespace NetPulse_CLI.UI
             var path = AnsiConsole.Prompt(
                 new TextPrompt<string>("File path: ").DefaultValue($"netpulse-report.{format}"));
 
-            if (path.EndsWith($".{format}", StringComparison.OrdinalIgnoreCase)) path += $".{format}";
+            if (!path.EndsWith($".{format}", StringComparison.OrdinalIgnoreCase)) path += $".{format}";
 
             args.Add("--output");
             args.Add(path);
