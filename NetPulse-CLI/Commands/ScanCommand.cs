@@ -1,6 +1,7 @@
 ﻿using NetPulse_CLI.Core.Interfaces;
 using NetPulse_CLI.Core.Models;
 using NetPulse_CLI.Settings;
+using NetPulse_CLI.UI;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.Diagnostics;
@@ -10,84 +11,69 @@ namespace NetPulse_CLI.Commands
     public sealed class ScanCommand : AsyncCommand<ScanSettings>
     {
         private readonly IPortScanner _scanner;
-        private readonly IEnumerable<IReportExporter> _exporters;
-        public ScanCommand(IPortScanner scanner, IEnumerable<IReportExporter> exporters)
+        private readonly IEnumerable<IReportExporter<ScanReport>> _exporters;
+
+        public ScanCommand(IPortScanner scanner, IEnumerable<IReportExporter<ScanReport>> exporters)
             => (_scanner, _exporters) = (scanner, exporters);
 
-        protected override async Task<int> ExecuteAsync(CommandContext context, 
-            ScanSettings settings, CancellationToken cancellationToken)
+        protected override async Task<int> ExecuteAsync(
+            CommandContext context, ScanSettings settings, CancellationToken ct)
         {
             var total = settings.ToPort - settings.FromPort + 1;
             IReadOnlyList<ScanResult> results = [];
+
             var startedAt = DateTime.Now;
             var stopwatch = Stopwatch.StartNew();
 
             try
             {
-                await AnsiConsole.Progress()
-                    .StartAsync(async ctx =>
-                    {
-                        var task= ctx.AddTask("[green]Scanning ports[/]", maxValue: total);
-
-                        var progress = new Progress<ScanResult>(_ => task.Increment(1));
-
-                        results = await _scanner.ScanRangeAsync(
-                            settings.Host,
-                            settings.FromPort,
-                            settings.ToPort,
-                            settings.TimeoutMs,
-                            settings.Concurrency,
-                            progress,
-                            cancellationToken);
-                    });
+                results = await ProgressDisplay.RunWithProgressAsync(
+                    "[green]Scanning ports[/]", total,
+                    progress => _scanner.ScanRangeAsync(
+                        settings.Host, settings.FromPort, settings.ToPort,
+                        settings.TimeoutMs, settings.Concurrency, progress, ct));
             }
             catch (OperationCanceledException)
             {
-                AnsiConsole.MarkupLine("[yellow]Scan cancelled by user.[/]");
+                LiveTables.ShowCancelled("Scan");
                 return 1;
             }
 
-            var open = results.Where(r => r.Status == PortStatus.Open).ToList();
-
-            AnsiConsole.MarkupLine(
-                $"scanned [bold]{results.Count}[/] ports in {settings.Host}: " +
-                $"[green]{open.Count} open[/].");
-
-            foreach (var r in open)
-                AnsiConsole.MarkupLine($"Port [green]{r.Port}[/] open");
-
             stopwatch.Stop();
 
+            LiveTables.ShowOpenPorts(results.Where(r => r.Status == PortStatus.Open).ToList());
+            LiveTables.ShowScanSummary(settings.Host, results, stopwatch.Elapsed);
+
             if (!string.IsNullOrWhiteSpace(settings.OutputPath))
+                return await ExportAsync(settings, results, startedAt, stopwatch.Elapsed, ct);
+
+            return 0;
+        }
+
+        private async Task<int> ExportAsync(
+            ScanSettings settings, IReadOnlyList<ScanResult> results,
+            DateTime startedAt, TimeSpan duration, CancellationToken ct)
+        {
+            var extension = Path.GetExtension(settings.OutputPath!).TrimStart('.').ToLowerInvariant();
+            var exporter = _exporters.FirstOrDefault(e => e.Format == extension);
+
+            if (exporter is null)
             {
-                var report = new ScanReport(
-                    settings.Host,
-                    settings.FromPort,
-                    settings.ToPort,
-                    startedAt,
-                    stopwatch.Elapsed,
-                    results);
-
-                var extension = Path.GetExtension(settings.OutputPath).TrimStart('.').ToLowerInvariant();
-                var exporter = _exporters.FirstOrDefault(e => e.Format == extension);
-
-                if (exporter is null)
-                {
-                    AnsiConsole.MarkupLine(
-                        $"[red]Unsupported format '{Markup.Escape(extension)}'.[/] " +
-                        $"Available: {string.Join(", ", _exporters.Select(e => e.Format))}");
-                    return 1;
-                }
-
-                var directory = Path.GetDirectoryName(Path.GetFullPath(settings.OutputPath));
-                if (!string.IsNullOrEmpty(directory))
-                    Directory.CreateDirectory(directory);
-
-                await exporter.ExportAsync(report, settings.OutputPath, cancellationToken);
-
-                AnsiConsole.MarkupLine(
-                    $"Report saved to [blue]{Markup.Escape(Path.GetFullPath(settings.OutputPath))}[/]");
+                LiveTables.ShowError(
+                    $"Unsupported format '{extension}'. Available: {string.Join(", ", _exporters.Select(e => e.Format))}");
+                return 1;
             }
+
+            var report = new ScanReport(
+                settings.Host, settings.FromPort, settings.ToPort, startedAt, duration, results);
+
+            var fullPath = Path.GetFullPath(settings.OutputPath!);
+            var directory = Path.GetDirectoryName(fullPath);
+            if (!string.IsNullOrEmpty(directory))
+                Directory.CreateDirectory(directory);
+
+            await exporter.ExportAsync(report, fullPath, ct);
+            LiveTables.ShowReportSaved(fullPath);
 
             return 0;
         }

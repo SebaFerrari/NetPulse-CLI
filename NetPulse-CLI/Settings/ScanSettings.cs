@@ -37,7 +37,7 @@ namespace NetPulse_CLI.Settings
 
         public override ValidationResult Validate()
         {
-            if (FromPort < 0 || ToPort > 65535) 
+            if (FromPort < 1 || ToPort > 65535) 
             {
                 return ValidationResult.Error("Ports have to be between 1 & 65535");
             }

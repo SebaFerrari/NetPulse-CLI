@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using NetPulse_CLI.Commands;
 using NetPulse_CLI.Core.Interfaces;
+using NetPulse_CLI.Core.Models;
 using NetPulse_CLI.Core.Services;
 using NetPulse_CLI.Infrastructure;
 using Spectre.Console.Cli;
@@ -8,8 +9,10 @@ using Spectre.Console.Cli;
 var services = new ServiceCollection();
 services.AddSingleton<IPortScanner, TcpPortScanner>();
 services.AddSingleton<IPingService, IcmpPingService>();
-services.AddSingleton<IReportExporter, JsonReportExporter>();
-services.AddSingleton<IReportExporter, CsvReportExporter>();
+services.AddSingleton<IReportExporter<ScanReport>, JsonReportExporter>();
+services.AddSingleton<IReportExporter<ScanReport>, CsvReportExporter>();
+services.AddSingleton<IReportExporter<PingReport>, JsonReportExporter>();
+services.AddSingleton<IReportExporter<PingReport>, CsvReportExporter>();
 
 var app = new CommandApp(new TypeRegistrar(services));
 
@@ -27,10 +30,5 @@ app.Configure(config =>
         .WithExample("ping", "8.8.8.8")
         .WithExample("ping", "8.8.8.8", "-n", "10", "-i", "500");
 });
-
-if (args.Length == 0)
-{
-    args = ["scan", "127.0.0.1", "--to", "200", "-o", @"C:\Users\sebuc\OneDrive - frt.utn.edu.ar\Desktop\Random\Side projects\CLI Monitoreo TCP y sondeo ICMP\reporte.json"];
-}
 
 return await app.RunAsync(args);

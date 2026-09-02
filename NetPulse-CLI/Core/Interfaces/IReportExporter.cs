@@ -1,13 +1,15 @@
 ﻿using NetPulse_CLI.Core.Models;
+using NetPulse_CLI.Settings;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace NetPulse_CLI.Core.Interfaces
 {
-    public interface IReportExporter
+    public interface IReportExporter<T>
     {
-        string Format { get; }                                    // "json", "csv"
-        Task ExportAsync(ScanReport report, string path, CancellationToken ct = default);
+        string Format { get; }
+        Task ExportAsync(T report, string path, CancellationToken ct = default);
+
     }
 }

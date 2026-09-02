@@ -26,6 +26,11 @@ namespace NetPulse_CLI.Settings
 
         public int Count { get; init; }
 
+        [Description("Path to save report (.json or .csv)")]
+        [CommandOption("-o|--output")]
+
+        public string? OutputPath { get; init; }
+
         public override ValidationResult Validate()
         {
             if (TimeoutMs <= 0)
@@ -35,6 +40,10 @@ namespace NetPulse_CLI.Settings
             if (IntervalMs < 0)
             {
                 return ValidationResult.Error("Interval can't be negative");
+            }
+            if (Count < 0)
+            {
+                return ValidationResult.Error("Count can't be negative");
             }
             return ValidationResult.Success();
         }
